@@ -30,7 +30,7 @@ twitter_username: talonx
 github_username:  talonx
 
 # Build settings
-theme: minima
+theme: minimal
 plugins:
   - jekyll-feed
 
