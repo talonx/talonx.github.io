@@ -1,0 +1,9 @@
+---           
+layout: post
+title: Nagle's algorithm and delayed acks...
+date: 2012-11-19 18:10:00 UTC
+updated: 2012-11-19 18:10:00 UTC
+comments: false
+categories: nagle's algorithm network programming
+---
+...don't work well together. I finally understood why from Richard Steven's <a href="http://www.unpbook.com/" target="_blank">UNP</a> book.<br /><br />In a nutshell,<br /><br /><blockquote class="tr_bq"><span style="font-family: &quot;Courier New&quot;,Courier,monospace;">S(ender) sends a packet, and cannot send the second one if the second one's size is less than the MSS (maximum segment size) until the first is acknowledged (Nagle). R(eceiver) receives the first packet, but cannot acknowledge it until the receiver app tries to send data on which the ACK can piggyback (Delayed ACK). S waits, R waits - until the delayed ACK timer on R times out.</span><br /><span style="font-family: &quot;Courier New&quot;,Courier,monospace;"></span><br /><span style="font-family: &quot;Courier New&quot;,Courier,monospace;"></span></blockquote><br />

@@ -1,0 +1,79 @@
+---           
+layout: post
+title: Automating Heap Dumps For Java Containers in Google Kubernetes Engine
+date: 2020-01-31 18:44:46 UTC
+updated: 2020-01-31 18:44:46 UTC
+comments: false
+categories: automation docker java kubernetes operations
+---
+
+ Heap dumps are an indispensable tool for debugging memory issues in Java processes. The typical way of taking a memory dump is using the jmap command
+<pre>
+jmap -dump:format=b;file=/tmp/heap.dump 2592
+</pre>
+This will trigger a heap dump for the process with id 2592 (assuming it's a Java process) and store it in a file /tmp/heap.dump. This can be analyzed later with a heap dump analyzer like jhat, MAT, or VisualVM - which are free tools.
+
+Triggering a heap dump for a Java process that is running in a container, inside a pod, in a Google Kubernetes Engine (GKE) cluster node is not so straightforward. There are many layers of infrastructure that you have to cross to get at the Java process. Your process would usually run as part of a managed abstraction like a Deployment or a StatefulSet in your Kubernetes cluster. Your starting point would be just the pod name.
+
+But,<br><br>
+<ul>
+<li> Knowing the pod name is not enough - you also have to locate the cluster node where it's running and ssh into it.
+<li> A GKE node might be running many pods, and many Java processes - you have to identify the correct one once once you have ssh'ed into it. "docker ps" can help here.
+<li> The GKE node might not have jmap. It's not straightforward to install the JDK there  because it would typically be running <a href="https://cloud.google.com/container-optimized-os/docs/" target="_blank">COS</a>. So you have to get inside the container and trigger the dump.
+<li> You have to copy the dump to an accessible location, maybe a GCS bucket, from where you can download it to analyze. Uploading to a GCS bucket requires gsutil, which is not present by default in a COS node.
+</ul>
+
+I have automated this entire process using just shell scripts and gcloud commands. The source code is on GitHub. They also use the toolbox utility that Google provides as a container for running debug tools. Invoking "toolbox" inside your GKE node will launch this container.
+<br><br>
+These scripts have an assumption which might not be valid for your cluster - I'll point it out at the relevant point in the code.
+<br><br>
+Here's a step by step explanation of the flow.
+<br><br>
+There are 3 shell scripts - k8s-debug-client.sh being the one to run from your dev box or bastion host. This one invokes k8s-debug-vm.sh (inside the GKE cluster node, i.e. the VM) which in turn invokes the k8s-debug-toolbox.sh.
+<br><br>
+First we find out the node on which the pod is running
+<pre>
+node_name=`kubectl get pod ${pod_name} -o json | jq '. | .spec.nodeName'`
+</pre>
+and get its public IP
+<pre>
+public_ip=`gcloud compute instances list --filter="name=(${node_name})" --format="value(networkInterfaces[].accessConfigs[0].natIP)"`
+</pre>
+copy the other two scripts to it
+<pre>
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${keyfile} k8s-debug-vm.sh k8s-debug-toolbox.sh ${user}@${public_ip}:
+</pre>
+and trigger them
+<pre>
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${keyfile} ${user}@${public_ip} sh k8s-debug-vm.sh ${pod_name} ${action} ${bucket}
+</pre>
+<br>
+I turn off the ssh warnings as I trigger this from a CI system on demand. If you run them manually, you can remove the -o options.
+<br><br>
+Inside the GKE node, k8s-debug-vm.sh figures out the correct container id and uses docker exec to trigger a heap dump inside it. 
+<pre>
+container_id=`docker ps | grep ${pod_name} | grep -v "POD" | awk '{print $1}'`
+docker exec ${container_id} sh -c "jmap -dump:format=b,file=heap.dump 1"
+</pre>
+Note that the heap dump is inside the container, and not in the VM. You may not be able to push it to a GCS bucket from the container as there is no gsutil and no permissions. So we need to copy the dump to the VM. We copy it to a uniquely named file.
+<pre>
+dttime=`echo $(date '+%d-%b-%Y-%H-%M-%S')`
+filename=${pod_name}-${dttime}.hdump
+docker cp ${container_id}:heap.dump ${filename}
+</pre>
+Now you have the dump file in the VM but there is no gsutil. So you need to invoke toolbox, which has gsutil inside it. Does that mean we need to copy the dump inside toolbox now? No, because toolbox mounts several useful directories by default from the VM it's running on. 
+<br><br>
+So we just invoke toolbox and pass it the path to the k8s-debug-toolbox.sh (which is in the home directory of the user you are logged in as in the VM) as it would appear from inside toolbox (since the home directory is also mounted inside toolbox).
+<br><br>
+Inside toolbox, we can use gsutil to upload the dump file (which is also available inside toolbox because it's in the home directory of the user you are logged in as in the VM). But here's a catch. gsutil requires permissions to upload to a GCS bucket. One way to provide this permission is with an IAM permissions JSON file. But how does it get to the VM? 
+<br><br>
+This is the caveat I mentioned above. In the infrastructure I manage, almost every Java pod has a config map with a permissions file that the pod uses to access Google Cloud services. This file is accessible as a mounted directory inside toolbox, so, voila!
+<pre>
+/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=${dir}/key.json
+/google-cloud-sdk/bin/gsutil cp /media/root/home/${user}/${filename} gs://${bucket}/kdev-debug/${filename}
+</pre>
+If you don't have this shortcut, you will a need to set the permissions somehow. There are multiple ways of doing it - one being to run a custom container instead of toolbox that has gsutil installed and can mount a config map which has the permissions. Another is to upload the permissions file to the VM when you run the command, use it from inside toolbox, and then delete it. The second one is a tad risky.
+<br><br>
+These scripts can be modified to be usable for any Kubernetes cluster and not just GKE. Most of the changes will be in the commands that fetch the list of running nodes. If you are using another OS for your K8S VMs, you can install Java directly on the VM and trigger the dump, after you find out the mapping between the container ids and the process ids as visible from the VM.
+<br><br>
+The scripts are on <a href="https://github.com/talonx/gke-container-debug/" target="_blank">GitHub</a>.

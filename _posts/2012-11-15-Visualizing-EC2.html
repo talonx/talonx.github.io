@@ -1,0 +1,9 @@
+---           
+layout: post
+title: Visualizing EC2
+date: 2012-11-15 17:19:20 UTC
+updated: 2012-11-15 17:19:20 UTC
+comments: false
+categories: boto ec2 graphdracula javascript python
+---
+<div dir="ltr" style="text-align: left;" trbidi="on"><span style="color: black;"><span style="font-family: inherit;">I hacked up a small application over the weekend to visualize EC2 instances at one place. Python/boto/web.py does the work of retrieving the data and JS (GraphDracula) displays it.</span></span><br /><span style="color: black;"><span style="font-family: inherit;"><br /></span></span><span style="color: black;"><span style="font-family: inherit;">The need for this rose at work - where we use EC2 to host our infrastructure. The original intention behind it was an easier way to view things like</span></span><br /><ul><li><span style="color: black;"><span style="font-family: inherit;">Which availability zone has which instances</span></span></li><li><span style="color: black;"><span style="font-family: inherit;">Open ports between security groups</span></span></li><li><span style="color: black;"><span style="font-family: inherit;">Which security group has which instances</span></span></li><li><span style="color: black;"><span style="font-family: inherit;">and so on</span></span></li></ul><span style="color: black;"><span style="font-family: inherit;">Not all of this has been done yet, but will be.</span></span><br /><span style="color: black;"><span style="font-family: inherit;">Here it is on Github - <a href="https://github.com/talonx/ec2viz" target="_blank">https://github.com/talonx/ec2viz</a></span></span></div>

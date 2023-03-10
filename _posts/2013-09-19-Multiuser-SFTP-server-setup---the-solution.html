@@ -1,0 +1,9 @@
+---           
+layout: post
+title: Multiuser SFTP server setup - the solution
+date: 2013-09-19 09:11:28 UTC
+updated: 2013-09-19 09:11:28 UTC
+comments: false
+categories: ec2 linux sftp ssh
+---
+<span style="color: black;">I had to setup an SFTP server on an EC2 instance recently, with multiple users chroot-ed into their own directories (with access to only those directories), and a <i>different</i> set of ssh-enabled users, with key based authentication for sftp as well as ssh.</span><br /><span style="color: black;"><br /></span><span style="color: black;">My first instinct was to do a Google search. Many links came up, none of which solved the complete problem. Some of them did not work (different Linux distro/version) and some ended up disabling ssh when I got sftp working.</span><br /><span style="color: black;"><br /></span><span style="color: black;">I finally found this blog post -</span><br /><span style="color: black;"><br /></span><span style="color: black;"><a href="http://blog.famzah.net/2011/02/03/secure-chroot-remote-file-access-via-sftp-and-ssh/">http://blog.famzah.net/2011/02/03/secure-chroot-remote-file-access-via-sftp-and-ssh/</a></span><br /><span style="color: black;"><br /></span><span style="color: black;">It's the only set of instructions that actually worked, with all the constraints mentioned above.</span><br /><span style="color: black;">For the record, the OS was Ubuntu 12.04 LTS. An additional step you need to take on this OS is to disable apparmor, or the ssh stops working after a reboot. I am not a Linux wizard, so I don't know yet why this happens.</span><br /><span style="color: black;"><br /></span><span style="color: black;">On a related note, it turns out that a common mistake that many make is confusing FTP over SSL/TLS with SFTP. FTP over SSL is just FTP over a secure connection, while SFTP is a completely different protocol, with the file transfer happening over an ssh connection.</span>

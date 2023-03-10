@@ -1,0 +1,31 @@
+---           
+layout: post
+title: Executing External Commands in Go
+date: 2016-05-14 16:23:19 UTC
+updated: 2016-05-14 16:23:19 UTC
+comments: false
+categories: golang systems programming
+---
+Sometimes we need to invoke operating system commands from our code. Most languages have APIs for this - Java has Runtime.exec(), Python has subprocess and Go has the <a href="https://golang.org/pkg/os/exec/" target="_blank">os/exec</a> package. This post briefly explores the Go API.<br /><br />The APIs are part of the exec/os package. The <a href="https://golang.org/pkg/os/exec/#Cmd" target="_blank">Cmd</a> abstraction encapsulates a command object, where various tweaks can be done including setting the standard output and error streams.<br /><br />Simple execution of a command is very easy. However, if one wants finer control over the execution, including control over streams and the correct exit code, maybe when it's to be used in a framework or a library, the code becomes slightly more involved.<br /><br />Creating the Cmd object is straighforward<br /><br /> 
+<pre>cmd := exec.Command(binaryName, args...)
+</pre>
+The output and error streams can be redirected as follows
+<pre>stdout := &amp;bytes.Buffer {}<br /> stderr := &amp;bytes.Buffer {}<br /> cmd.Stdout = stdout<br />cmd.Stderr = stderr
+</pre>
+	Once the command has been executed, it returns an Error object if the execution failed.<br />
+<pre>err := cmd.Run()
+</pre>
+
+The command execution can fail for various reasons - it might not have been a valid command, it might have exited with an error code or their might have been IO errors. We need to detect these cases so that the caller of the API gets the correct response.
+
+The Go source file <a href="https://golang.org/src/os/exec/exec.go" target="_blank">exec.go</a> documents the error types that can occur.An unsuccessful exit by a command. The ExitError object also has a "<span class="comment">subset of the standard error output from the C<span class="comment">md.Output method if standard error was not otherwise being collected." &lt;quote docs&gt;.<div style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;"><br /><h4 style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;">exec.Error</h4><div style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;">One of the cases where this Error can be returned is when the command could not be located. When the Command struct instance is created, it calls the LookPath method to locate the binary if the binaryName argument does not have path separators, which can return one of these Error instances when the executable could not be located. The actual implementation <a href="https://golang.org/src/os/exec/lp_windows.go" target="_blank">depends</a> <a href="https://golang.org/src/os/exec/lp_unix.go" target="_blank">on the</a> OS.<div style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;"><br /><div style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;">We can switch on the Error type
+
+	<pre>switch err.(type) {<br />   case *exec.ExitError:<br />    e := err.(*exec.ExitError)<br />    if status, ok := e.Sys().(syscall.WaitStatus); ok {<br />     exitcode = status.ExitStatus()<br />    }<br />   case *exec.Error:<br />    e := err.(*exec.Error)<br />    stderr.WriteString(e.Err.Error())<br />   default:<br />    panic("Unknown err type: " + reflect.TypeOf(err).String())<br /><br />  }
+</pre>
+		If it's ExitError, we need to query the OS specific implementations using the <a href="https://golang.org/pkg/os/#ProcessState.Sys" target="_blank">Sys interface</a>. The Unix implementation is syscall.WaitStatus.<div style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;"><br /><div style="margin: 0px; orphans: auto; text-align: start; text-indent: 0px; widows: 1;">if the err instance is nil, the command execution succeeded and we can get the exit code from the Cmd itself.
+<pre>
+if status, ok := cmd.ProcessState.Sys().(syscall.WaitStatus); ok {
+	exitcode = status.ExitStatus()
+}
+</pre>
+The complete source code is <a href="https://github.com/talonx/go-sys-utils/blob/master/executecommand.go" target="_blank">here</a>.

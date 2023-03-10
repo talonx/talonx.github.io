@@ -1,0 +1,60 @@
+---           
+layout: post
+title: Automagically Discovering and Scraping Google Compute Nodes in Prometheus
+date: 2019-03-06 15:29:32 UTC
+updated: 2019-03-06 15:29:32 UTC
+comments: false
+categories: google cloud platform monitoring prometheus service discovery
+---
+Prometheus can scrape metrics from either a static list of machines or discover machines dynamically using a service discovery plugin. Service discovery plugins exists for the major cloud providers, which includes Google Cloud Platform (GCP).<br><br>A simple configuration for GCP’s service discovery in the Prometheus config (usually prometheus.yml) looks like this
+<br><br>
+<pre>
+  - job_name: node
+    honor_labels: true
+    gce_sd_configs:
+      - project: ml-platform-a
+        zone: us-eastl1-a
+        port: 9100
+    relabel_configs:
+      - source_labels: [__meta_gce_label_cloud_provider]
+        target_label: cloud_provider
+      - source_labels: [__meta_gce_label_cloud_zone]
+        target_label: cloud_zone
+      - source_labels: [__meta_gce_label_cloud_tier]
+        target_label: cloud_tier
+      - source_labels: [__meta_gce_label_cloud_service]
+        target_label: cloud_service
+      - source_labels: [__meta_gce_instance_name]
+        target_label: instance
+</pre>Let’s dissect this. Running Prometheus with this configuration will fetch all the instances in the GCP project ml-platform-a in the zone us-east1-a, and scrape their "/metrics" endpoints at port 9100. The relabel config lets you convert GCE (Google Compute Engine) labels (<i>source</i>) into Prometheus labels (<i>target</i>).<br />However, this config will attempt to pull data from all instances whether they are running or not, and end up marking the stopped ones as "DOWN". To get around this, you need to filter out the stopped instances. Add a filter after the port directive, like this<br /><pre>
+port: 9100
+filter: '(status="RUNNING")'
+</pre>
+The equivalent gcloud command to list all running instances looks like
+<pre>gcloud compute instances list --filter='status:(RUNNING)</pre>
+
+Note the difference in syntax. The keywords, however, are identical.<br /><br />What if you have multiple exporters running on a specific set of instances? You can select them by their label(s) and add a different gce_sd_config section for them. For instances which have exporters running on say, port 3000, and have a label called “cloud_service:dashboard”, the config would look like
+<br><br>
+<pre>
+  - job_name: dashboard
+    honor_labels: true
+    gce_sd_configs:
+      - project: ml-plaform-a
+        zone: us-central1-c
+    port: 3000
+        filter: '(status="RUNNING") AND (labels.cloud_service="dashboard")'
+    relabel_configs:
+      - source_labels: [__meta_gce_label_cloud_provider]
+        target_label: cloud_provider
+      - source_labels: [__meta_gce_label_cloud_zone]
+        target_label: cloud_zone
+      - source_labels: [__meta_gce_label_cloud_tier]
+        target_label: cloud_tier
+      - source_labels: [__meta_gce_label_cloud_service]
+        target_label: cloud_service
+      - source_labels: [__meta_gce_instance_name]
+        target_label: instance	
+</pre>Just for reference, the analogous gcloud command is<pre>
+gcloud compute instances list --filter='status:(RUNNING) AND labels.cloud_service:dashboard'</pre>
+The relabel_configs is identical to that of the 9100 scraper. It would have been nice if Prometheus had allowed for a common relabel config section that could be reused for such cases.<br /><br />The GCE service discovery plugin needs read permission on the GCE Compute API to be able to pull the list of instances. There are several ways to do this, depending on how you are running Prometheus<br /><br /><ul><li>Prometheus on a GCE instance in the same project : You can assign the correct IAM permissions to your GCE instance, and nothing more needs to be done. </li><li>Prometheus on a GCE instance in a different project, or a non-GCE machine : You can create a service account in your GCP project, download the key as a JSON and start Prometheus with the JSON set in an environment variable, like this </li></ul><pre>
+GOOGLE_APPLICATION_CREDENTIALS=...path..to..json..credentials… ./prometheus -- (other options)</pre>

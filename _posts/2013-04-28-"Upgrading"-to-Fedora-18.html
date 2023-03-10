@@ -1,0 +1,37 @@
+---           
+layout: post
+title: Upgrading to Fedora 18
+date: 2013-04-28 15:15:59 UTC
+updated: 2013-04-28 15:15:59 UTC
+comments: false
+categories: fedora linux polite rant
+---
+I have been running Fedora 16 on my work laptop. It was EOL'ed early this year, which means no more upgrades, including for things like Firefox. There was no option but to upgrade. I had two choices - opt for something with long term support like Ubuntu LTS or try the new Fedora (and try the newer one in 6 months).
+<br>
+I opted for the latter, since I've been using Fedora for a while, hoping that I would not have to do a Windows-style post installation cleanup.
+<br>
+Some highlights from the experience:
+
+<p><p>
+<b>Nepomuk, Akonadi</b>
+</p>
+
+Disable them? Sure. They are disabled in System Settings, but insist on starting up anyways. Uninstall them? Not possible. They're so tightly coupled with KDE that uninstalling them uninstalls all of KDE. The developers don't seem to be <a href="https://www.google.co.in/search?client=ubuntu&amp;channel=fs&amp;q=how+to+stop+akonadi" target="_blank">listening</a> to the users here.
+
+<p><p>
+<b>Disk space</b>
+</p>
+My installation ran out of disk space 20 minutes after I  rebooted post-installation. There seemed to be some continuous process in the background which was eating up space. Some investigation identified the culprit. 
+
+<pre>
+[talonx@****** apps]$ pwd<br />/home/talonx/.kde/share/apps<br />[talonx@****** apps]$ find . -type f -size +50000k -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'<br />./nepomuk/repository/main/data/virtuosobackend/soprano-virtuoso.log: 151G<br />./nepomuk/repository/main/data/virtuosobackend/soprano-virtuoso.db: 68M
+</pre>
+
+Yes, it created a log file of 151G within 20 minutes. What kind of application does that? What about basic stuff like log file rotation?
+
+<p><p>
+<b>PackageKit</b>
+<p>
+
+Another of those which <a href="http://forums.fedoraforum.org/showthread.php?t=273225" target="_blank">does not go away</a>, and causes endless irritation. 
+Fedora is not something that I would prescribe to new Linux users. Others have pointed out that its instability and some features are probably the <a href="https://ask.fedoraproject.org/question/7683/is-there-a-fedora-stable-lts/" target="_blank">result of staying at the cutting edge</a>. Granting that, it remains difficult to get it to a state where even people like software developers can use it to be productive.
