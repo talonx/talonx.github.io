@@ -56,3 +56,15 @@ header_pages:
 #   - vendor/ruby/
 
 permalink: /posts/:year/:month/:day/:title/
+
+##SEO plugin
+twitter:
+  username: talonx
+  card: summary
+
+social:
+  name: Hrishikesh Barua
+  links:
+    - https://twitter.com/talonx
+    - https://www.linkedin.com/in/hrishikeshbarua
+    - https://github.com/talonx
