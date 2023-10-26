@@ -1,7 +1,7 @@
 ---           
 layout: post
 title: What Makes a Good TechOps Engineer?
-date: 2023-10-26 17:00:00 IST
+date: 2023-10-26 08:00:00 IST
 comments: true
 categories: techops, opinion
 ---
