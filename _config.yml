@@ -28,7 +28,8 @@ github_username:  talonx
 
 # Build settings
 #theme: minima
-theme: beautiful-jekyll-theme
+#theme: beautiful-jekyll-theme
+remote_theme: daattali/beautiful-jekyll@6.0.1
 plugins:
   - jekyll-feed
   - jekyll-paginate
