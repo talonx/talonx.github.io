@@ -1,118 +1,84 @@
 ---           
 layout: post
-title: What Makes a Good TechOps Engineer?
-date: 2023-10-26 08:00:00 IST
+title: Monitoring Best Practices - Tracking Service Provider Outages
+date: 2023-10-30 08:00:00 IST
 comments: true
-categories: techops, opinion
+categories: techops monitoring uptime
 ---
 
-I’ve been in backend development for most of my career. Some part of it was spent doubling up and leading the Ops teams, including
-a short stint of doing just Ops. This is a rambling list of attributes that I would value in a TechOps engineer. The best engineers I
-have worked with - and not just in Ops - had most of these to various degrees.
+If you have a SaaS product, chances are you are using one or more public clouds and monitoring services. If you are running 
+a development team, a third party likely manages some of your dev tools and collaboration tools. Your service uptime 
+will be a function of the uptime of these providers. Some may have an indirect impact - like affecting your ability to push 
+bug fixes to production. Others, like DNS, would be directly tied to your product’s uptime. You can take preventive or 
+mitigative steps if you get notified about service provider incidents on time.
 
-Warning: opinions ahead.
+In this article, I’ll explore this impact and different ways to stay updated. I’ll also share a list of endpoints that you can track.
 
-### Wait, So What Do You Mean by a “TechOps Engineer”?
+### The Impact of Service Provider Outages
 
-The definition of "DevOps" reached a saturation point long ago. What started as a cultural movement is now a job description 
-and a designation. "DevOps" has brought about immense changes in the way we deliver software in both approach and tools.
+#### Infrastructure and Hosting Providers
+Incidents in DNS, Cloud IaaS, managed services, and CDNs can breach the SLA you have promised to your customers. DNS and 
+CDN providers have many layers of redundancy built in - due to their front-facing nature - so outages are rare. When they
+happen, though, you would want your systems, rather than a customer, to notify you.
 
-Personally, it has brought about the helpless realization that in spite of it being misappropriated to represent everything
-from a tool category to a job title, the term “DevOps” is the quickest and easiest way to convey this set of changes, this way of doing things, 
-to folks in the industry.
+Cloud applications have to be tolerant of faults in the underlying infrastructure. Whether this is true or not for your 
+applications, you would want to know about any infrastructure issues immediately.
 
-I still shy away from using the term “DevOps engineer”. I prefer “TechOps engineer” (TE). For me, it encompasses the roles of
-ops/cloud/infra engineers and also has some overlap with SRE.
+#### Development Tools
+Managed VCS and CI/CD service outages can affect your development cycles. They can also hamper your ability to push 
+critical production fixes. Notifications might not help you much here unless you have alternative methods of building 
+and deploying. But it still makes sense so that you can let others in your org know when the service is down and back again.
+
+Outages in artifact and container image repositories can impact new deployments. Autoscaling of new pods in environments 
+like Kubernetes when new VMs come up will fail, causing service disruption.
+
+#### Communication and Collaboration Tools
+Incidents in Slack, Zoom, Google Meet, Microsoft Teams, etc can hamper internal communication. Delayed and dropped messages 
+will just confuse your team.
+
+#### Monitoring and Alerting Services
+Who monitors the monitor? This question bugs every good TechOps engineer. Your monitoring can be in-house (not a good idea),
+a mix of internal and external (the sweet spot?), or completely external (can be costly). When one or more of your external 
+monitors goes down, you will want to know. If your paging service is unable to alert on-call folks, you will want to know 
+so that alerts are not missed.
+
+#### Business Tools and Other Third-Party APIs
+Issues in payment providers and authentication services can lead to loss of revenue and customer trust. Outages in your
+marketing tools will affect your planned campaigns.
 
 
-### Good TechOps Engineers
+Sometimes, an incident in a global service might not have affected you yet. It might have affected a subset of geographical
+locations. It still makes sense to get alerted so that you can prepare for the worst if it does.
 
-#### Are Curious
+### So, What is the Solution?
+Almost all service providers have a public status page. What we want is an automatic way of getting notified when there 
+is something new on the page. There are a few ways to do this:
 
-TechOps engineers are curious about everything. They are curious about minute things that others might downplay or dismiss. 
-This obsession with small details can often lead to missing the forest for the trees. At the same time they have the ability to hold the big picture in their heads.
+- Check if the provider has an RSS feed for their status. The public status page is a good place to look for this. Pull the
+RSS feed into a tool like [IFTTT](https://ifttt.com/){:target="_blank"} and have it deliver notifications to a channel of your choosing 
+(Slack, email, text, phone). This is easy to do, but you have to repeat it for each feed.
+- Some status pages have direct integration with Slack, email, and text. You don’t need an intermediary like IFTTT if so.
+Pages built with [https://status.io/](https://status.io/){:target="_blank"} have this feature out of the box. This takes 
+the least effort if your service provider uses it.
+- If the status page does not have an RSS feed, there are tools to convert page changes to RSS. You can hook in that feed 
+using IFTTT. This is a hit-and-miss affair as any changes in the page structure can break the feed conversion.
+- Some services post incident updates on Twitter, but it’s not easy to get notified from one account alone.
+- If you don’t want to do this yourself, some paid apps aggregate status from different services and notify you.
 
-#### Have a Secure Mindset
+#### How does IFTTT work?
+IFTTT stands for "if this, then that". It’s an online app for stringing together disparate services. At its most basic, 
+it pulls in data from a particular source, checks for a condition, and then performs an action. Examples:
+- Pull in data from an API, check for a specific keyword, and send a message to a Slack channel.
+- Pull in data from an RSS feed, and send it to a specific phone number via text message.
+IFTTT can watch an RSS feed and send a message to your internal Slack channel when there is a new entry in the feed. 
+- A new entry is either the start or the end of a new incident.
 
-They have an innate sense of what is secure, and what is not. Good developers can detect code smells; good TechOps engineers (GTEs) 
-can detect security smells from a mile away. Leave your laptop unlocked and they will extrapolate security disaster scenarios you could not have imagined. 
-I remember the time a person in my team was using an Ubuntu image screenshot tool for a customer’s internal dashboard which would auto-upload them 
-to imgur.com (not good). And then there was another who was using a public Postman request URL, complete with auth tokens, and sharing it with their team
-(again, not good). It just struck me that I remember the negative examples here, and none of the positive ones where somebody successfully prevented a possible security incident.
+### The List
+I’ve created a [list of status pages and feeds](https://github.com/talonx/service-provider-status-links){:target="_blank"} 
+on GitHub - check it out and send me a PR if you want to add to it.
 
-#### Are Comfortable with Complexity
-
-Any infrastructure gets complex over time. Technical debt accrues like mold on the wall. Infrastructure becomes a soup of special cases,
-(un)documented manual changes, and legacy setups that we cannot update. And all this might coexist with a Terraformed cluster. Some distributed system components 
-somewhere might communicate in weird ways and lead to consistency issues. GTEs have the ability to understand and process complex topologies in their heads.
-
-#### Get Along With Others
-
-True for everyone in a team, but more so for TEs. TEs are in charge of systems used by many teams. Interacting with different people is inevitable.
-
-#### Are Obsessive Documenters and Sharers
-
-The internal wiki is the GTE’s best friend. They ensure it’s all there for their present and future team members. An out of date wiki page
-is something to be corrected soon. “Is it wikified?” - is the question I’ve seen them ask and pursue at the end of many troubleshooting sessions.
-
-#### Know Their Audience
-
-Developers form the majority in most teams. TEs (or similar roles) are often seen as doing something arcane. GTEs can talk about
-what they are doing from the point of view of devs (or VPs, or CXOs) and connect the dots across the entire tech stack from infra to browser.
-
-#### Are Good at Reading and Understanding Technical Docs
-
-This seems like an obvious one - but the number of people who cannot do so has surprised me many times. Sometimes it’s all in the man pages,
-or in the API docs, or the command line options’ help.
-
-#### Love Boring Tech, But Open to Adopting Shiny New Tech
-
-Boring is safe. Boring is stable. If it does the job, why bring in something new? Especially when it's something that can impact
-many systems. But when there is an opportunity for significant improvement, GTEs can do a cost-benefit analysis of switching to the
-new thing complete with a roadmap and potential pitfalls.
-
-#### Are Responsive
-
-TEs are usually firefighting or debugging issues. Responsiveness is not limited to responding when they are available to look at a problem. 
-They might be busy with something and another problem arrives. A GTE would let people know what they are doing. They weigh priorities in the face 
-of many issues, and switch to other problems if necessary, or pull in somebody else if they are available. Being on top of things without multitasking 
-is the key here. Multitasking usually ends in mistakes unless the tasks are simple. Responsiveness is so important that I make it a part of 
-my job requirements. When team communication is over Zoom or Slack this is even more crucial - not having this will make people wonder if they are talking to a black hole.
-
-#### Know Their Tools
-
-Every GTE has a toolkit of their favorite tools - and they are competent at using them. Text editor, debugging tools - it 
-does not matter which specific one you use as long as you can use it well.
-
-#### Are Fast Typers
-
-This does not need explanation.
-
-#### Have a Desire to Keep Improving Things
-
-Every GTE I have worked with had an endless list of things that we could improve. We cannot avoid tech debt - the best we can do is track it.
-
-#### Are Generalists with Specializations
-
-GTEs are jacks of all trades, masters of some. The more different ideas you are exposed to, the richer your mental problem solving framework becomes.
-
-#### Have a Sense of Cleanliness
-
-GTEs are bothered when something is not as clean as it can be. Consistency is an obsession with them, and at the same time they understand that perfect is the enemy of good.
-
-#### Are Independent Movers
-
-GTEs can explore and push ahead with an idea on their own, and are confident enough to explore and make changes to complex systems, pursuing it over weeks or months.
-
-#### Do Not Fear Friday Deployments
-
-…because they have automated it and it’s easy to rollback. Even if you don’t have continuous deployment (CD)  in place, GTEs want to make the 
-deploy and rollback processes as easy as possible. As far as I can remember, [IMVU](http://timothyfitz.com/2009/02/10/continuous-deployment-at-imvu-doing-the-impossible-fifty-times-a-day/)
-started this 14 years ago, and we have come a long way since then in the industry.
-
-#### Are a Little Paranoid
-
-No level of infrastructure automation or security scans can convince a GTE that everything will go well. This keeps them on their toes 
-and can bring out unforeseen issues. The downside is this can also create resistance to change.
+**tldr;** It’s important to monitor your service providers, and there are different ways to do it. Choose the way that works best for you.
 
 Comments? Let me know on Twitter [@talonx](https://twitter.com/talonx){:target="_blank"}
+
+Disclaimer: I have no affiliation with any of the tools mentioned.
