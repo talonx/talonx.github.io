@@ -3,7 +3,7 @@ layout: post
 title: A Twitter bot for Classical Music with Google Cloud Functions
 date: 2023-10-07 10:00:46 IST
 comments: true
-categories: google-cloud-platform, twitter
+categories: google-cloud-platform twitter
 ---
 
 Writing a Twitter bot that just tweets and does nothing more is supposed to be easy. It was not _very_ easy because I ran into a few issues with

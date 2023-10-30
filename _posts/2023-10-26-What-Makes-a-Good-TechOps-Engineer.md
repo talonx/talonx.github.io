@@ -3,7 +3,7 @@ layout: post
 title: What Makes a Good TechOps Engineer?
 date: 2023-10-26 08:00:00 IST
 comments: true
-categories: techops, opinion
+categories: techops opinion
 ---
 
 I’ve been in backend development for most of my career. Some part of it was spent doubling up and leading the Ops teams, including
