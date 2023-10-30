@@ -27,14 +27,17 @@ twitter_username: talonx
 github_username:  talonx
 
 # Build settings
-theme: minima
+#theme: minima
+theme: beautiful-jekyll-theme
 plugins:
   - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap
 
 
-header_pages:
-  - feed.markdown
-  - about.markdown
+#header_pages:
+#  - feed.markdown
+#  - about.markdown
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
@@ -57,14 +60,54 @@ header_pages:
 
 permalink: /posts/:year/:month/:day/:title/
 
+#Beautiful Jekyll specific settings
+author: Hrishikesh Barua
+navbar-links:
+  About: about
+  Subscribe: https://feeds.feedburner.com/deepinspace/tech
+
+social-network-links:
+  email: "talonx@gmail.com"
+  rss: false
+  twitter: talonx
+  linkedin: hrishikeshbarua
+  github: talonx
+
+rss-description: Hrishikesh Barua's tech blog
+share-links-active:
+  twitter: true
+  linkedin: true
+
+feed_show_tags: true
+feed_show_excerpt: false
+post_search: true
+
+commentbox: "5637229426769920-proj"
+
+exclude:
+  - CHANGELOG.md
+  - CNAME
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - README.md
+  - screenshot.png
+  - docs/
+
+paginate: 8
+#paginate_path: posts/:num
+
+# End Beautiful Jekyll
+
 ##SEO plugin
 twitter:
   username: talonx
   card: summary
 
-social:
-  name: Hrishikesh Barua
-  links:
-    - https://twitter.com/talonx
-    - https://www.linkedin.com/in/hrishikeshbarua
-    - https://github.com/talonx
+#Minima
+#social:
+#  name: Hrishikesh Barua
+#  links:
+#    - https://twitter.com/talonx
+#    - https://www.linkedin.com/in/hrishikeshbarua
+#    - https://github.com/talonx
