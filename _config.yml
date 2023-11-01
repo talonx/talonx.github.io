@@ -65,7 +65,8 @@ permalink: /posts/:year/:month/:day/:title/
 author: Hrishikesh Barua
 navbar-links:
   About: about
-  Subscribe: https://feeds.feedburner.com/deepinspace/tech
+  RSS: https://feeds.feedburner.com/deepinspace/tech
+  Newsletter: https://techops.substack.com/
 
 social-network-links:
   email: "talonx@gmail.com"
