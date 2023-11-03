@@ -1,7 +1,7 @@
 ---           
 layout: post
 title: Command Line Tips And Tricks To View Container Logs in Kubernetes
-date: 2023-11-03 08:00:00 IST
+date: 2023-11-03 00:00:00 IST
 comments: true
 categories: techops kubernetes how-to
 ---
