@@ -11,7 +11,7 @@ My software interests lie in product development, distributed systems, computer 
 TechOps tools and transformations and working in focused engineering teams. Apart from figuring out how to write successful software, 
 I also like staying fit, playing the violin, buying more books than I can ever read and spending time with my dogs. <br>
 
-I'm currently working on a solo project https://incidenthub.cloud/ - a tool to monitor your third party SaaS and cloud providers.
+I'm currently working on a solo project [https://incidenthub.cloud/](https://incidenthub.cloud/) - a tool to monitor your third party SaaS and cloud providers.
 
 You can reach me at
 - [LinkedIn](https://www.linkedin.com/in/hrishikeshbarua/)
