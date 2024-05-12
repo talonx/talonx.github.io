@@ -13,7 +13,11 @@ I also like staying fit, playing the violin, buying more books than I can ever r
 
 I'm currently working on a solo project https://incidenthub.cloud/ - a tool to monitor your third party SaaS and cloud providers.
 
-To receive updates on new posts, you can subscribe to the RSS feed [RSS](https://feeds.feedburner.com/deepinspace/tech) for this blog. 
+You can reach me at
+- [LinkedIn](https://www.linkedin.com/in/hrishikeshbarua/)
+- [Email](mailto:talonx@gmail.com)
+
+To receive updates on new posts on my blog, you can subscribe to the RSS feed [RSS](https://feeds.feedburner.com/deepinspace/tech) for this blog. 
 I also publish a newsletter at [https://techops.substack.com/](https://techops.substack.com/).
 
 My non-software subjects of interest include music, history (ancient/medieval/modern), psychology, and linguistics.
