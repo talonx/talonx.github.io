@@ -22,5 +22,5 @@ To receive updates on new posts on my blog, you can subscribe to the RSS feed [R
 I also publish a newsletter at [https://techops.substack.com/](https://techops.substack.com/).
 
 My non-technical subjects of interest include music, history, psychology, and linguistics.
-Usually, I am able to focus on only one of these at a time. I write about my other interests at [https://www.hrishikeshbarua.com](https://www.hrishikeshbarua.com). 
+Usually, I am able to focus on only one of these at a time. I write about my other interests at [https://www.hrishikeshbarua.com](https://www.hrishikeshbarua.com).  
 <br>
