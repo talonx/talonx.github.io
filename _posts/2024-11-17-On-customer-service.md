@@ -23,7 +23,7 @@ they are satisfied. Even if the end result is that I cannot solve their problem,
 
 I want to go back a bit since I'm musing anyway. Who is a customer? Are all users - paying and non-paying - also customers?
 
-A customer is somebody to whom I am providing someting - a product, a service, an assurance that something will be done in a specific time period. By this definition, if I'm in a team,
+A customer is somebody to whom I am providing something - a product, a service, an assurance that something will be done in a specific time period. By this definition, if I'm in a team,
 all [my team members are my customers](https://www.linkedin.com/pulse/your-first-customer-team-hrishikesh-barua/). If I have a product that users are using, they are my customers.
 
 My thoughts on customer service have been shaped by various people throughout my career, and I wanted to capture these thoughts in one place for two reasons. 
