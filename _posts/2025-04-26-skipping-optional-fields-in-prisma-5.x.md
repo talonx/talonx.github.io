@@ -107,7 +107,7 @@ came up with:
 
 ```typescript
 
-const getCreateUpdateArgs2 = (update: PublicStatusPageUpdate): { createArgs: any, updateArgs: any } => {
+const getCreateUpdateArgs2 = (update: PSPUpdate): { createArgs: any, updateArgs: any } => {
     const createArgs: any = {}
     const updateArgs: any = {}
 
