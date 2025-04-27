@@ -3,7 +3,7 @@ layout: post
 title: Summarizing SRE/Ops Podcasts Using an LLM
 date: 2025-02-03 00:00:00 IST
 comments: true
-categories: 
+categories: podcast sre ops llm
 ---
 
 ## Introduction
